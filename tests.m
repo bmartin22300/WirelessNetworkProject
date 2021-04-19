@@ -51,7 +51,6 @@ function bitDec = hamming748_decode(cellusers);
     if e ==[1;0;1]
       sum=0;
       for c=1:rows(cellcalc)-1  
-          disp(cellcalc(c));
         sum += mod(cellcalc(c),2);
       endfor
       if sum != cellcalc(8)
@@ -61,7 +60,6 @@ function bitDec = hamming748_decode(cellusers);
     if e == [1;1;0]
       sum=0;
       for c=1:rows(cellcalc)-1 
-          disp(cellcalc(c));
         sum += mod(cellcalc(c),2);
       endfor
       if sum != cellcalc(8)
@@ -71,18 +69,74 @@ function bitDec = hamming748_decode(cellusers);
     if e == [1;1;1]
       sum=0;
       for c=1:rows(cellcalc)-1  
-          disp(cellcalc(c));
         sum += mod(cellcalc(c),2);
       endfor
       if sum != cellcalc(8)
         display("Erreur - > Retransmission du message");
       endif
     endif
-    disp(cellcalc((1:4),1));
     bitDec = [bitDec;cellcalc((1:4),1)];
     i=i+8;
     g=g+8;
   endwhile
 endfunction
 bitDec = hamming748_decode(cellusers);
-check_Hamming748();
+
+usersTab= bitSeq((49:end),1);
+
+function info = chercheUser(usersTab);
+  info=-1;
+  i=0;
+  k=1;
+  l=48;
+  while i < 11
+    decoupeUser = usersTab((k:l),1);
+    user=hamming748_decode(decoupeUser);
+    userIdent = user(1:8,1);
+    sum = 0;
+    j=0;
+    while j<8
+      disp("j : ");
+      disp(j);
+      disp("user(j) ");
+      disp(user(j+1));
+      if user(j+1) == 1 
+        sum += 2^(7-j);
+      endif
+      j=j+1;
+    endwhile
+    disp(sum);
+    if sum == 3
+      info = user;
+    endif
+    k=k+48;
+    l=l+48;
+    i=i+1;
+  endwhile  
+endfunction
+disp("Appel cherche user");
+user = chercheUser(usersTab);
+userPBCHU = user(9:end,1);
+
+function bitDec = QPSK_demod(qamSeq);
+  for i = 1:length(qamSeq)
+    reel = real(qamSeq(i))
+    img = imag(qamSeq(i))
+    if reel > 0 
+      bitDec(2*(i-1) + 1) = 1
+    else 
+      bitDec(2*(i-1) + 1) = 0
+    endif
+    
+    if img > 0
+      bitDec(2*(i-1) + 2) = 1
+    else 
+      bitDec(2*(i-1) + 2) = 0
+    endif
+      
+      
+  endfor
+endfunction
+
+qpsk_matrix = QPSK_demod(qamMatrix);
+check_QPSK();
