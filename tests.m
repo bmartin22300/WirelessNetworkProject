@@ -140,3 +140,49 @@ endfunction
 
 qpsk_matrix = QPSK_demod(qamMatrix);
 check_QPSK();
+
+function decodedMatrix = Demod_byMCS(qamSeq);
+
+    decodedMatrix = [];
+   
+    if qamSeq(9) == 0 && qamSeq(10) == 0 
+      disp("!!!!!!!!! decod bpsk ");
+      decodedMatrix = BPSK_demod_vecteur(qamSeq);
+    endif
+    if qamSeq(9) == 1 && qamSeq(10) == 0 
+      disp("!!!!!!!! decod qpsk ");
+      decodedMatrix = QPSK_demod(qamSeq);
+    endif
+  
+  #endfor
+endfunction
+
+decodedMatrix = Demod_byMCS(user);
+
+function qamConstellation = Qam_Constellation(user);
+ 
+ qamConstellationStr = ""
+  for i = 9:14
+    disp(" i :");
+    disp(i);
+    qamConstellationStr = strcat(qamConstellationStr ,  int2str(user(i)));
+    disp("user i :");
+    disp(user(i));
+    disp("int2str user i :");
+    
+    disp(int2str(user(i)));
+    disp("qamConstellationStr :");
+    disp(qamConstellationStr);
+   endfor
+   disp(bin2dec (qamConstellationStr));
+   qamConstellation = bin2dec (qamConstellationStr);
+  
+endfunction
+ qamConstellation = Qam_Constellation(user)
+ 
+ # matlab Structure 
+
+
+sequence.RB = user(18 : 23 ) 
+sequence.MCS_PDSCH = user(9 : 14) 
+sequence.Constellation = Qam_Constellation(user)
